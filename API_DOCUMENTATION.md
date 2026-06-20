@@ -210,3 +210,46 @@ Digunakan saat klik tombol tempat sampah.
     "message": "Berhasil menghapus barang"
 }
 ```
+
+---
+
+## 4. Laporan Stok
+Endpoint khusus untuk halaman Laporan Stok yang menampilkan ringkasan berserta status stok tiap barang. Seluruh endpoint wajib menyertakan token `Authorization: Bearer <token_jwt>`.
+
+### 4.1. Get Data Laporan Stok (GET)
+Mengambil ringkasan beserta tabel laporan. Mendukung pencarian berdasar kategori dan ID barang (dropdown pilih barang).
+
+- **URL:** `/laporan/stok`
+- **Method:** `GET`
+- **Query Params (Opsional):**
+  - `?kategori=ATK` (Filter Kategori)
+  - `?barang_id=1` (Filter Barang Spesifik)
+
+**Response Sukses:**
+```json
+{
+    "message": "Berhasil mengambil data laporan stok",
+    "data": {
+        "summary": {
+            "total_barang": 1,
+            "total_stok": 350,
+            "barang_masuk": 200,
+            "barang_keluar": 130
+        },
+        "laporan": [
+            {
+                "id": 1,
+                "kode_barang": "BRG-01",
+                "nama_barang": "Kertas HVS",
+                "kategori": "ATK",
+                "satuan": "Rim",
+                "stok_tersedia": 350,
+                "stok_minimum": 50,
+                "harga_satuan": 50000,
+                "harga_stok": 17500000,
+                "status": "Aman"
+            }
+        ]
+    }
+}
+```
