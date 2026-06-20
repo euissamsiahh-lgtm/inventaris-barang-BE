@@ -368,3 +368,62 @@ Muncul jika jenis "keluar" namun stok tidak cukup.
     }
 }
 ```
+
+---
+
+## 6. Master Kategori Barang (CRUD)
+Mengelola daftar kategori barang (seperti Alat Tulis Kantor, Elektronik). Seluruh endpoint wajib menyertakan token `Authorization: Bearer <token_jwt>`.
+
+### 6.1. Daftar Kategori (GET)
+- **URL:** `/kategoris`
+- **Method:** `GET`
+- **Query Params:** `?search=Alat` (Opsional)
+
+**Response Sukses:**
+```json
+{
+    "message": "Berhasil mengambil daftar kategori",
+    "data": [
+        {
+            "id": 1,
+            "nama_kategori": "Alat Tulis Kantor",
+            "jumlah": 45
+        }
+    ]
+}
+```
+
+### 6.2. Tambah Kategori (POST)
+- **URL:** `/kategoris`
+- **Method:** `POST`
+
+**Request Body:**
+```json
+{
+    "nama_kategori": "Perabotan",
+    "jumlah": 10
+}
+```
+
+### 6.3. Edit Kategori (PUT)
+- **URL:** `/kategoris/{id}`
+- **Method:** `PUT`
+
+**Request Body:**
+```json
+{
+    "nama_kategori": "Perabotan Kayu",
+    "jumlah": 12
+}
+```
+
+### 6.4. Hapus Kategori (DELETE)
+- **URL:** `/kategoris/{id}`
+- **Method:** `DELETE`
+
+**Response Sukses:**
+```json
+{
+    "message": "Berhasil menghapus kategori"
+}
+```
