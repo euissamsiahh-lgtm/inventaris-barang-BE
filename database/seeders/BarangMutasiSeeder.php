@@ -41,6 +41,7 @@ class BarangMutasiSeeder extends Seeder
                 if (rand(1, 100) <= 30) {
                     $masuk = rand(10, 50);
                     Mutasi::create([
+                        'no_referensi' => 'IN/' . $date->format('Ymd') . '/' . str_pad(rand(1, 999), 3, '0', STR_PAD_LEFT),
                         'barang_id' => $barang->id,
                         'user_id' => $admin->id,
                         'jenis' => 'masuk',
@@ -55,6 +56,7 @@ class BarangMutasiSeeder extends Seeder
                 if (rand(1, 100) <= 40 && $barang->stok > 0) {
                     $keluar = rand(1, min(20, $barang->stok));
                     Mutasi::create([
+                        'no_referensi' => 'OUT/' . $date->format('Ymd') . '/' . str_pad(rand(1, 999), 3, '0', STR_PAD_LEFT),
                         'barang_id' => $barang->id,
                         'user_id' => $petugas->id,
                         'jenis' => 'keluar',

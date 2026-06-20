@@ -13,12 +13,13 @@ return new class extends Migration
     {
         Schema::create('mutasis', function (Blueprint $table) {
             $table->id();
+            $table->string('no_referensi')->unique();
             $table->foreignId('barang_id')->constrained('barangs')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->enum('jenis', ['masuk', 'keluar']);
             $table->integer('jumlah');
             $table->date('tanggal');
-            $table->text('keterangan')->nullable();
+            $table->string('keterangan')->nullable();
             $table->timestamps();
         });
     }

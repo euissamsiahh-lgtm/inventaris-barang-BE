@@ -253,3 +253,80 @@ Mengambil ringkasan beserta tabel laporan. Mendukung pencarian berdasar kategori
     }
 }
 ```
+
+---
+
+## 5. Mutasi Barang (Transaksi)
+Mencatat dan melihat riwayat keluar-masuk barang. Seluruh endpoint wajib menyertakan token `Authorization: Bearer <token_jwt>`.
+
+### 5.1. Riwayat Mutasi (GET)
+Menampilkan daftar mutasi. Mendukung filter rentang tanggal, nama barang, dan jenis transaksi.
+
+- **URL:** `/mutasi`
+- **Method:** `GET`
+- **Query Params (Opsional):**
+  - `?start_date=2026-09-01`
+  - `?end_date=2026-09-30`
+  - `?barang=Kertas` (Nama / Kode)
+  - `?jenis=masuk` (Atau 'keluar')
+
+**Response Sukses:**
+```json
+{
+    "message": "Berhasil mengambil data mutasi",
+    "data": {
+        "summary": {
+            "total_masuk": 150,
+            "total_keluar": 50,
+            "total_mutasi": 15
+        },
+        "mutasi": [
+            {
+                "id": 1,
+                "tanggal": "22/09/26",
+                "no_referensi": "IN/20260922/223",
+                "nama_barang": "Kertas HVS",
+                "kode_barang": "BRG-01",
+                "jenis": "Masuk",
+                "jumlah": 50,
+                "satuan": "Rim",
+                "keterangan": "Pembelian CV. A",
+                "petugas": "Petugas Gudang"
+            }
+        ]
+    }
+}
+```
+
+### 5.2. Tambah Mutasi (POST)
+Mencatat barang masuk atau keluar. **Catatan Penting:** Endpoint ini otomatis akan menambah atau mengurangi tabel Stok Barang!
+
+- **URL:** `/mutasi`
+- **Method:** `POST`
+
+**Request Body:**
+```json
+{
+    "barang_id": 1,
+    "jenis": "masuk", 
+    "jumlah": 50,
+    "tanggal": "2026-09-22",
+    "keterangan": "Pembelian CV. A",
+    "no_referensi": "IN/000/223" 
+}
+```
+*(Catatan: `no_referensi` sifatnya opsional. Jika Anda tidak mengirimnya dari Frontend, Backend akan membuatkan nomor otomatis untuk Anda).*
+
+**Response Sukses (201 Created):**
+Mengembalikan data yang baru saja dimasukkan.
+
+**Response Gagal - Stok Kurang (422 Unprocessable Entity):**
+Muncul jika jenis "keluar" namun stok tidak cukup.
+```json
+{
+    "message": "Gagal menyimpan mutasi",
+    "errors": {
+        "jumlah": ["Stok barang tidak mencukupi untuk dikeluarkan."]
+    }
+}
+```
