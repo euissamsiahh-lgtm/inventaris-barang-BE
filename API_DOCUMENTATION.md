@@ -489,3 +489,108 @@ Mengelola daftar satuan barang (seperti Pcs, Dus, Rim). Seluruh endpoint wajib m
     "message": "Berhasil menghapus satuan"
 }
 ```
+
+---
+
+## 8. Master Role (Hak Akses)
+Mengelola daftar role pengguna. Seluruh endpoint wajib menyertakan token `Authorization: Bearer <token_jwt>`.
+
+### 8.1. Daftar Role (GET)
+- **URL:** `/roles`
+- **Method:** `GET`
+
+**Response Sukses:**
+```json
+{
+    "message": "Berhasil mengambil daftar role",
+    "data": [
+        {
+            "id": 1,
+            "nama_role": "Administrator",
+            "deskripsi": "Memiliki akses penuh ke semua fitur."
+        }
+    ]
+}
+```
+
+### 8.2. Tambah Role (POST)
+- **URL:** `/roles`
+- **Method:** `POST`
+
+**Request Body:**
+```json
+{
+    "nama_role": "Manager",
+    "deskripsi": "Melihat laporan saja"
+}
+```
+
+---
+
+## 9. Master User
+Mengelola daftar pengguna aplikasi. Seluruh endpoint wajib menyertakan token `Authorization: Bearer <token_jwt>`.
+
+### 9.1. Daftar User (GET)
+- **URL:** `/users`
+- **Method:** `GET`
+- **Query Params:** `?search=Admin` (Opsional, mencari berdasarkan nama, email, atau nama_role)
+
+**Response Sukses:**
+```json
+{
+    "message": "Berhasil mengambil daftar user",
+    "data": [
+        {
+            "id": 1,
+            "name": "Administrator",
+            "email": "admin@stok.ku",
+            "role": "Administrator",
+            "role_id": 1,
+            "status": "Aktif"
+        }
+    ]
+}
+```
+
+### 9.2. Tambah User (POST)
+- **URL:** `/users`
+- **Method:** `POST`
+
+**Request Body:**
+```json
+{
+    "name": "Budi",
+    "email": "budi@stok.ku",
+    "password": "password123",
+    "role_id": 2,
+    "status": "Aktif"
+}
+```
+
+### 9.3. Edit User (PUT)
+- **URL:** `/users/{id}`
+- **Method:** `PUT`
+
+**Request Body:**
+```json
+{
+    "name": "Budi Santoso",
+    "email": "budi@stok.ku",
+    "password": "newpassword123",
+    "role_id": 2,
+    "status": "Tidak Aktif"
+}
+```
+
+*(Catatan: `password` opsional saat Edit)*
+
+### 9.4. Hapus User (DELETE)
+- **URL:** `/users/{id}`
+- **Method:** `DELETE`
+
+**Response Sukses:**
+```json
+{
+    "message": "Berhasil menghapus user"
+}
+```

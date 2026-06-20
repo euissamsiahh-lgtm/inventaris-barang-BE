@@ -28,8 +28,16 @@ class AuthController extends Controller
 
         $user = auth()->guard('api')->user();
 
-        // Cek role jika dikirimkan oleh frontend
-        if ($request->has('role') && $user->role !== $request->role) {
+        // Cek status user
+        if (!$user->status) {
+            auth()->guard('api')->logout();
+            return response()->json([
+                'message' => 'Akun Anda tidak aktif'
+            ], 403);
+        }
+
+        // Cek role jika dikirimkan oleh frontend (misal role berupa text)
+        if ($request->has('role') && strtolower($user->role->nama_role ?? '') !== strtolower($request->role)) {
             auth()->guard('api')->logout(); // invalidate token if role mismatches
             return response()->json([
                 'message' => 'Anda tidak memiliki akses sebagai ' . ucfirst($request->role)
@@ -59,7 +67,8 @@ class AuthController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
-                'role' => $user->role,
+                'role' => $user->role->nama_role ?? '-',
+                'status' => $user->status ? 'Aktif' : 'Tidak Aktif'
             ]
         ]);
     }

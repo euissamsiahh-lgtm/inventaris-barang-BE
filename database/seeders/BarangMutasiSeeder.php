@@ -14,8 +14,14 @@ class BarangMutasiSeeder extends Seeder
 {
     public function run(): void
     {
-        $admin = User::where('role', 'admin')->first() ?? User::first();
-        $petugas = User::where('role', 'petugas')->first() ?? User::first();
+        // Get existing users
+        $admin = User::where('email', 'admin@stok.ku')->first();
+        $petugas = User::where('email', 'petugas@stok.ku')->first();
+
+        if (!$admin || !$petugas) {
+            $this->command->error('User admin@stok.ku atau petugas@stok.ku tidak ditemukan!');
+            return;
+        }
 
         $barangs = [
             ['kode_barang' => 'BRG-01', 'nama_barang' => 'Kertas HVS', 'kategori' => 'ATK', 'stok_minimum' => 50, 'satuan' => 'Rim', 'harga_satuan' => 50000],

@@ -17,7 +17,12 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->enum('role', ['admin', 'petugas'])->default('petugas');
+            // Menghapus 'role' enum, diganti menjadi foreign key ke tabel roles (setelah tabel roles dibuat)
+            // Karena tabel roles mungkin belum ada saat users dibuat (users adalah 000000),
+            // kita gunakan unsignedBigInteger biasa, lalu foreign key constraintnya nanti, 
+            // atau cukup unsignedBigInteger.
+            $table->unsignedBigInteger('role_id')->nullable();
+            $table->boolean('status')->default(true); // true = Aktif, false = Tidak Aktif
             $table->rememberToken();
             $table->timestamps();
         });
