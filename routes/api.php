@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\KategoriController;
 use App\Http\Controllers\Api\SatuanController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\SupplierController;
 
 Route::post('/login', [AuthController::class, 'login']);
 
@@ -22,6 +23,7 @@ Route::middleware('auth:api')->group(function () {
     Route::apiResource('satuans', SatuanController::class);
     Route::apiResource('roles', RoleController::class);
     Route::apiResource('users', UserController::class);
+    Route::apiResource('suppliers', SupplierController::class);
     Route::get('/laporan/stok', [LaporanController::class, 'stok']);
     Route::get('/laporan/barang-keluar', [LaporanController::class, 'barangKeluar']);
     Route::apiResource('mutasi', MutasiController::class);

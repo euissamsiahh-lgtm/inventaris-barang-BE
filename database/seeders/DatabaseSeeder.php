@@ -25,6 +25,10 @@ class DatabaseSeeder extends Seeder
         \App\Models\Satuan::create(['nama_satuan' => 'Dus', 'kode_satuan' => 'DUS', 'keterangan' => 'Dus/Kotak']);
         \App\Models\Satuan::create(['nama_satuan' => 'Rim', 'kode_satuan' => 'RIM', 'keterangan' => 'Rim (500 Lembar)']);
 
+        // Supplier Seeder
+        \App\Models\Supplier::create(['nama_supplier' => 'CV. Sukses Jaya', 'alamat' => 'Jl. Merdeka No. 0, Jakarta', 'no_hp' => '081234567890', 'email' => 'suksesjaya@gmail.com']);
+        \App\Models\Supplier::create(['nama_supplier' => 'PT. Makmur Sentosa', 'alamat' => 'Jl. Sudirman No. 10, Bandung', 'no_hp' => '089876543210', 'email' => 'makmursentosa@yahoo.com']);
+
         $this->call(UserSeeder::class);
         $this->call(BarangMutasiSeeder::class);
     }

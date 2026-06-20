@@ -594,3 +594,68 @@ Mengelola daftar pengguna aplikasi. Seluruh endpoint wajib menyertakan token `Au
     "message": "Berhasil menghapus user"
 }
 ```
+
+---
+
+## 10. Master Supplier (CRUD)
+Mengelola daftar supplier (pemasok barang). Seluruh endpoint wajib menyertakan token `Authorization: Bearer <token_jwt>`.
+
+### 10.1. Daftar Supplier (GET)
+- **URL:** `/suppliers`
+- **Method:** `GET`
+- **Query Params:** `?search=Sukses` (Opsional, mencari berdasarkan nama, alamat, email, atau no_hp)
+
+**Response Sukses:**
+```json
+{
+    "message": "Berhasil mengambil daftar supplier",
+    "data": [
+        {
+            "id": 1,
+            "nama_supplier": "CV. Sukses Jaya",
+            "alamat": "Jl. Merdeka No. 0, Jakarta",
+            "no_hp": "081234567890",
+            "email": "suksesjaya@gmail.com"
+        }
+    ]
+}
+```
+
+### 10.2. Tambah Supplier (POST)
+- **URL:** `/suppliers`
+- **Method:** `POST`
+
+**Request Body:**
+```json
+{
+    "nama_supplier": "PT. Sumber Maju",
+    "alamat": "Jl. Gajah Mada No. 1",
+    "no_hp": "08111222333",
+    "email": "sumbermaju@gmail.com"
+}
+```
+
+### 10.3. Edit Supplier (PUT)
+- **URL:** `/suppliers/{id}`
+- **Method:** `PUT`
+
+**Request Body:**
+```json
+{
+    "nama_supplier": "CV. Sukses Selalu",
+    "alamat": "Jl. Merdeka No. 1, Jakarta",
+    "no_hp": "081234567891",
+    "email": "suksesselalu@gmail.com"
+}
+```
+
+### 10.4. Hapus Supplier (DELETE)
+- **URL:** `/suppliers/{id}`
+- **Method:** `DELETE`
+
+**Response Sukses:**
+```json
+{
+    "message": "Berhasil menghapus supplier"
+}
+```
