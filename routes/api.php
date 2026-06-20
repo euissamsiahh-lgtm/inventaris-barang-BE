@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\BarangController;
 use App\Http\Controllers\Api\LaporanController;
 use App\Http\Controllers\Api\MutasiController;
 use App\Http\Controllers\Api\KategoriController;
+use App\Http\Controllers\Api\SatuanController;
 
 Route::post('/login', [AuthController::class, 'login']);
 
@@ -16,6 +17,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index']);
     Route::apiResource('barangs', BarangController::class);
     Route::apiResource('kategoris', KategoriController::class);
+    Route::apiResource('satuans', SatuanController::class);
     Route::get('/laporan/stok', [LaporanController::class, 'stok']);
     Route::get('/laporan/barang-keluar', [LaporanController::class, 'barangKeluar']);
     Route::apiResource('mutasi', MutasiController::class);

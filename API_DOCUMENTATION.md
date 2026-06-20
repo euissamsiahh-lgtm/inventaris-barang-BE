@@ -427,3 +427,65 @@ Mengelola daftar kategori barang (seperti Alat Tulis Kantor, Elektronik). Seluru
     "message": "Berhasil menghapus kategori"
 }
 ```
+
+---
+
+## 7. Master Satuan Barang (CRUD)
+Mengelola daftar satuan barang (seperti Pcs, Dus, Rim). Seluruh endpoint wajib menyertakan token `Authorization: Bearer <token_jwt>`.
+
+### 7.1. Daftar Satuan (GET)
+- **URL:** `/satuans`
+- **Method:** `GET`
+- **Query Params:** `?search=Pcs` (Opsional, mencari berdasarkan nama atau kode)
+
+**Response Sukses:**
+```json
+{
+    "message": "Berhasil mengambil daftar satuan",
+    "data": [
+        {
+            "id": 1,
+            "nama_satuan": "Pcs",
+            "kode_satuan": "PCS",
+            "keterangan": "Pieces"
+        }
+    ]
+}
+```
+
+### 7.2. Tambah Satuan (POST)
+- **URL:** `/satuans`
+- **Method:** `POST`
+
+**Request Body:**
+```json
+{
+    "nama_satuan": "Box",
+    "kode_satuan": "BOX",
+    "keterangan": "Satu box isi 10"
+}
+```
+
+### 7.3. Edit Satuan (PUT)
+- **URL:** `/satuans/{id}`
+- **Method:** `PUT`
+
+**Request Body:**
+```json
+{
+    "nama_satuan": "Kotak",
+    "kode_satuan": "KTK",
+    "keterangan": "Kotak kecil"
+}
+```
+
+### 7.4. Hapus Satuan (DELETE)
+- **URL:** `/satuans/{id}`
+- **Method:** `DELETE`
+
+**Response Sukses:**
+```json
+{
+    "message": "Berhasil menghapus satuan"
+}
+```
