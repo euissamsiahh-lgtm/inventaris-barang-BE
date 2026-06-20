@@ -18,10 +18,11 @@ class BarangMutasiSeeder extends Seeder
         $petugas = User::where('role', 'petugas')->first() ?? User::first();
 
         $barangs = [
-            ['kode_barang' => 'BRG001', 'nama_barang' => 'Kertas A4', 'stok_minimum' => 50, 'satuan' => 'Rim'],
-            ['kode_barang' => 'BRG002', 'nama_barang' => 'Tinta Printer Hitam', 'stok_minimum' => 10, 'satuan' => 'Botol'],
-            ['kode_barang' => 'BRG003', 'nama_barang' => 'Pulpen', 'stok_minimum' => 100, 'satuan' => 'Pcs'],
-            ['kode_barang' => 'BRG004', 'nama_barang' => 'Spidol Papan Tulis', 'stok_minimum' => 20, 'satuan' => 'Pcs'],
+            ['kode_barang' => 'BRG-01', 'nama_barang' => 'Kertas HVS', 'kategori' => 'ATK', 'stok_minimum' => 50, 'satuan' => 'Rim', 'harga_satuan' => 50000],
+            ['kode_barang' => 'BRG-02', 'nama_barang' => 'Tinta Printer Hitam', 'kategori' => 'Tinta', 'stok_minimum' => 10, 'satuan' => 'Botol', 'harga_satuan' => 75000],
+            ['kode_barang' => 'BRG-03', 'nama_barang' => 'Pulpen', 'kategori' => 'ATK', 'stok_minimum' => 100, 'satuan' => 'Pcs', 'harga_satuan' => 3500],
+            ['kode_barang' => 'BRG-04', 'nama_barang' => 'Spidol Papan Tulis', 'kategori' => 'ATK', 'stok_minimum' => 20, 'satuan' => 'Pcs', 'harga_satuan' => 8000],
+            ['kode_barang' => 'BRG-05', 'nama_barang' => 'Mouse Wireless', 'kategori' => 'Elektronik', 'stok_minimum' => 5, 'satuan' => 'Pcs', 'harga_satuan' => 150000],
         ];
 
         $createdBarangs = [];

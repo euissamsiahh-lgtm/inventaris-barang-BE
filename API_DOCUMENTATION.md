@@ -132,3 +132,81 @@ Mengambil semua data ringkasan, grafik 30 hari, barang stok menipis, dan aktivit
     }
 }
 ```
+
+---
+
+## 3. Data Barang (CRUD)
+Manajemen daftar inventaris barang. Seluruh endpoint wajib menyertakan token `Authorization: Bearer <token_jwt>`.
+
+### 3.1. Daftar Barang (GET)
+Mengambil daftar barang. Anda bisa mengirim parameter untuk melakukan pencarian dan filter sesuai form di UI.
+
+- **URL:** `/barangs`
+- **Method:** `GET`
+- **Query Params (Opsional):**
+  - `?search=kertas` (Pencarian teks kode/nama)
+  - `?kategori=ATK` (Filter Kategori)
+  - `?satuan=Rim` (Filter Satuan)
+
+**Response Sukses:**
+```json
+{
+    "message": "Berhasil mengambil data barang",
+    "data": [
+        {
+            "id": 1,
+            "kode_barang": "BRG-01",
+            "nama_barang": "Kertas HVS",
+            "kategori": "ATK",
+            "stok": 350,
+            "stok_minimum": 50,
+            "satuan": "Rim",
+            "harga_satuan": 50000
+        }
+    ]
+}
+```
+
+### 3.2. Tambah Barang Baru (POST)
+- **URL:** `/barangs`
+- **Method:** `POST`
+
+**Request Body:**
+```json
+{
+    "kode_barang": "BRG-06",
+    "nama_barang": "Laptop Bekas",
+    "kategori": "Elektronik",
+    "stok": 10,
+    "stok_minimum": 2,
+    "satuan": "Unit",
+    "harga_satuan": 3000000
+}
+```
+
+**Response Sukses (201 Created):**
+Mengembalikan data yang baru saja dimasukkan.
+
+### 3.3. Detail Barang (GET)
+Digunakan saat klik tombol Edit untuk memuat data ke dalam form modal.
+- **URL:** `/barangs/{id}` (Contoh: `/barangs/1`)
+- **Method:** `GET`
+
+### 3.4. Update/Edit Barang (PUT)
+Digunakan untuk menyimpan perubahan dari Modal Form Edit.
+- **URL:** `/barangs/{id}` (Contoh: `/barangs/1`)
+- **Method:** `PUT`
+
+**Request Body:** Sama persis seperti form Tambah Barang (POST).
+
+### 3.5. Hapus Barang (DELETE)
+Digunakan saat klik tombol tempat sampah.
+- **URL:** `/barangs/{id}` (Contoh: `/barangs/1`)
+- **Method:** `DELETE`
+
+**Response Sukses:**
+```json
+{
+    "message": "Berhasil menghapus barang"
+}
+```

@@ -12,9 +12,11 @@ class Barang extends Model
     protected $fillable = [
         'kode_barang',
         'nama_barang',
+        'kategori',
         'stok',
         'stok_minimum',
         'satuan',
+        'harga_satuan',
     ];
 
     public function mutasis()
