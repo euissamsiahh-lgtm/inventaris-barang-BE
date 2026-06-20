@@ -30,43 +30,74 @@ class BarangMutasiSeeder extends Seeder
             $createdBarangs[] = Barang::create($brg);
         }
 
-        // Generate mutations for the last 30 days
+        // Generate mutations: Exactly 5 transactions as requested
+        // Let's create 2 Masuk and 3 Keluar
         $today = Carbon::now();
-        for ($i = 30; $i >= 0; $i--) {
-            $date = $today->copy()->subDays($i);
+        $tujuanList = ['HRD', 'IT', 'Finance', 'Operasional', 'Marketing'];
 
-            // Randomly pick some items to mutate
-            foreach ($createdBarangs as $barang) {
-                // 30% chance to have an incoming mutation
-                if (rand(1, 100) <= 30) {
-                    $masuk = rand(10, 50);
-                    Mutasi::create([
-                        'no_referensi' => 'IN/' . $date->format('Ymd') . '/' . str_pad(rand(1, 999), 3, '0', STR_PAD_LEFT),
-                        'barang_id' => $barang->id,
-                        'user_id' => $admin->id,
-                        'jenis' => 'masuk',
-                        'jumlah' => $masuk,
-                        'tanggal' => $date->format('Y-m-d'),
-                        'keterangan' => 'Restock',
-                    ]);
-                    $barang->increment('stok', $masuk);
-                }
+        // Transaction 1: Masuk
+        $barang1 = $createdBarangs[0];
+        Mutasi::create([
+            'no_referensi' => 'IN/' . $today->copy()->subDays(5)->format('Ymd') . '/001',
+            'barang_id' => $barang1->id,
+            'user_id' => $admin->id,
+            'jenis' => 'masuk',
+            'jumlah' => 100,
+            'tanggal' => $today->copy()->subDays(5)->format('Y-m-d'),
+            'keterangan' => 'Pembelian Awal',
+        ]);
+        $barang1->increment('stok', 100);
 
-                // 40% chance to have an outgoing mutation, if stock is sufficient
-                if (rand(1, 100) <= 40 && $barang->stok > 0) {
-                    $keluar = rand(1, min(20, $barang->stok));
-                    Mutasi::create([
-                        'no_referensi' => 'OUT/' . $date->format('Ymd') . '/' . str_pad(rand(1, 999), 3, '0', STR_PAD_LEFT),
-                        'barang_id' => $barang->id,
-                        'user_id' => $petugas->id,
-                        'jenis' => 'keluar',
-                        'jumlah' => $keluar,
-                        'tanggal' => $date->format('Y-m-d'),
-                        'keterangan' => 'Pengambilan untuk divisi',
-                    ]);
-                    $barang->decrement('stok', $keluar);
-                }
-            }
-        }
+        // Transaction 2: Masuk
+        $barang2 = $createdBarangs[1] ?? $createdBarangs[0];
+        Mutasi::create([
+            'no_referensi' => 'IN/' . $today->copy()->subDays(4)->format('Ymd') . '/002',
+            'barang_id' => $barang2->id,
+            'user_id' => $admin->id,
+            'jenis' => 'masuk',
+            'jumlah' => 150,
+            'tanggal' => $today->copy()->subDays(4)->format('Y-m-d'),
+            'keterangan' => 'Pembelian Tambahan',
+        ]);
+        $barang2->increment('stok', 150);
+
+        // Transaction 3: Keluar
+        Mutasi::create([
+            'no_referensi' => 'OUT/' . $today->copy()->subDays(3)->format('Ymd') . '/001',
+            'barang_id' => $barang1->id,
+            'user_id' => $petugas->id,
+            'jenis' => 'keluar',
+            'jumlah' => 10,
+            'tanggal' => $today->copy()->subDays(3)->format('Y-m-d'),
+            'tujuan' => $tujuanList[0], // HRD
+            'keterangan' => 'Permintaan Divisi',
+        ]);
+        $barang1->decrement('stok', 10);
+
+        // Transaction 4: Keluar
+        Mutasi::create([
+            'no_referensi' => 'OUT/' . $today->copy()->subDays(2)->format('Ymd') . '/002',
+            'barang_id' => $barang2->id,
+            'user_id' => $petugas->id,
+            'jenis' => 'keluar',
+            'jumlah' => 5,
+            'tanggal' => $today->copy()->subDays(2)->format('Y-m-d'),
+            'tujuan' => $tujuanList[1], // IT
+            'keterangan' => 'Permintaan Divisi',
+        ]);
+        $barang2->decrement('stok', 5);
+
+        // Transaction 5: Keluar
+        Mutasi::create([
+            'no_referensi' => 'OUT/' . $today->copy()->subDays(1)->format('Ymd') . '/003',
+            'barang_id' => $barang1->id,
+            'user_id' => $petugas->id,
+            'jenis' => 'keluar',
+            'jumlah' => 20,
+            'tanggal' => $today->copy()->subDays(1)->format('Y-m-d'),
+            'tujuan' => $tujuanList[2], // Finance
+            'keterangan' => 'Permintaan Divisi',
+        ]);
+        $barang1->decrement('stok', 20);
     }
 }

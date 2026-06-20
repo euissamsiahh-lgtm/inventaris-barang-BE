@@ -15,6 +15,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index']);
     Route::apiResource('barangs', BarangController::class);
     Route::get('/laporan/stok', [LaporanController::class, 'stok']);
+    Route::get('/laporan/barang-keluar', [LaporanController::class, 'barangKeluar']);
     Route::apiResource('mutasi', MutasiController::class);
     Route::get('/user', function (Request $request) {
         return $request->user();

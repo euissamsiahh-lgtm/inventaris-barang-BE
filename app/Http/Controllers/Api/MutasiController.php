@@ -80,6 +80,7 @@ class MutasiController extends Controller
             'jenis' => 'required|in:masuk,keluar',
             'jumlah' => 'required|integer|min:1',
             'tanggal' => 'required|date',
+            'tujuan' => 'nullable|string',
             'keterangan' => 'nullable|string',
             'no_referensi' => 'nullable|string|unique:mutasis,no_referensi'
         ]);
@@ -125,6 +126,7 @@ class MutasiController extends Controller
                 'jenis' => $request->jenis,
                 'jumlah' => $request->jumlah,
                 'tanggal' => $request->tanggal,
+                'tujuan' => $request->tujuan,
                 'keterangan' => $request->keterangan
             ]);
 

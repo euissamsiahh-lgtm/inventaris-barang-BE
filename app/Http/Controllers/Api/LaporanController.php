@@ -73,4 +73,79 @@ class LaporanController extends Controller
             ]
         ], 200);
     }
+
+    public function barangKeluar(Request $request)
+    {
+        $query = Mutasi::with(['barang:id,nama_barang,kode_barang,satuan,harga_satuan', 'user:id,name'])
+            ->where('jenis', 'keluar');
+
+        // Filter: Tanggal (start_date s/d end_date)
+        if ($request->has('start_date') && $request->start_date != '') {
+            $query->whereDate('tanggal', '>=', $request->start_date);
+        }
+        if ($request->has('end_date') && $request->end_date != '') {
+            $query->whereDate('tanggal', '<=', $request->end_date);
+        }
+
+        // Filter: Tujuan
+        if ($request->has('tujuan') && $request->tujuan != '') {
+            $query->where('tujuan', 'like', '%' . $request->tujuan . '%');
+        }
+
+        // Filter: Barang (Nama)
+        if ($request->has('barang') && $request->barang != '') {
+            $search = $request->barang;
+            $query->whereHas('barang', function($q) use ($search) {
+                $q->where('nama_barang', 'like', "%{$search}%");
+            });
+        }
+
+        $mutasis = $query->orderBy('tanggal', 'desc')->get();
+
+        // Summary Calculations
+        $totalTransaksi = $mutasis->count();
+        $barangKeluar = $mutasis->sum('jumlah');
+        $totalNilaiPengeluaran = $mutasis->sum(function($mutasi) {
+            return $mutasi->jumlah * ($mutasi->barang->harga_satuan ?? 0);
+        });
+
+        // Determine Periode String
+        $periode = 'Semua Waktu';
+        if ($request->has('start_date') && $request->has('end_date')) {
+            $start = \Carbon\Carbon::parse($request->start_date)->translatedFormat('d F Y');
+            $end = \Carbon\Carbon::parse($request->end_date)->translatedFormat('d F Y');
+            $periode = "{$start} - {$end}";
+        }
+
+        // Map Table Data
+        $laporan = $mutasis->map(function($mutasi) {
+            $hargaSatuan = $mutasi->barang->harga_satuan ?? 0;
+            return [
+                'id' => $mutasi->id,
+                'tanggal' => \Carbon\Carbon::parse($mutasi->tanggal)->format('d/m/y'),
+                'no_referensi' => $mutasi->no_referensi,
+                'tujuan' => $mutasi->tujuan ?? '-',
+                'nama_barang' => $mutasi->barang->nama_barang ?? '-',
+                'kode_barang' => $mutasi->barang->kode_barang ?? '-',
+                'satuan' => $mutasi->barang->satuan ?? '-',
+                'jumlah' => $mutasi->jumlah,
+                'harga_satuan' => $hargaSatuan,
+                'total' => $mutasi->jumlah * $hargaSatuan,
+                'petugas' => $mutasi->user->name ?? '-'
+            ];
+        });
+
+        return response()->json([
+            'message' => 'Berhasil mengambil data laporan barang keluar',
+            'data' => [
+                'summary' => [
+                    'total_transaksi' => $totalTransaksi,
+                    'barang_keluar' => (int) $barangKeluar,
+                    'total_nilai_pengeluaran' => $totalNilaiPengeluaran,
+                    'periode' => $periode
+                ],
+                'laporan' => $laporan
+            ]
+        ], 200);
+    }
 }

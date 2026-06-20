@@ -16,6 +16,7 @@ class Mutasi extends Model
         'jenis',
         'jumlah',
         'tanggal',
+        'tujuan',
         'keterangan',
     ];
 
