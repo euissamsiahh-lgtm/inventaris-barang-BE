@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class MutasiController extends Controller
 {
@@ -80,9 +81,9 @@ class MutasiController extends Controller
             'jenis' => 'required|in:masuk,keluar',
             'jumlah' => 'required|integer|min:1',
             'tanggal' => 'required|date',
-            'tujuan' => 'nullable|string',
             'keterangan' => 'nullable|string',
-            'no_referensi' => 'nullable|string|unique:mutasis,no_referensi'
+            'tujuan' => 'nullable|string',
+            'supplier_id' => 'nullable|exists:suppliers,id'
         ]);
 
         if ($validator->fails()) {
@@ -92,42 +93,54 @@ class MutasiController extends Controller
             ], 422);
         }
 
+        // Custom validation based on jenis
+        if ($request->jenis == 'keluar' && !$request->has('tujuan')) {
+             return response()->json([
+                'message' => 'Validasi gagal',
+                'errors' => ['tujuan' => ['Kolom tujuan wajib diisi untuk barang keluar.']]
+            ], 422);
+        }
+
+        if ($request->jenis == 'masuk' && !$request->has('supplier_id')) {
+             return response()->json([
+                'message' => 'Validasi gagal',
+                'errors' => ['supplier_id' => ['Kolom supplier wajib diisi untuk barang masuk.']]
+            ], 422);
+        }
+
+        $barang = Barang::find($request->barang_id);
+
+        if ($request->jenis == 'keluar' && $barang->stok < $request->jumlah) {
+            return response()->json([
+                'message' => 'Stok barang tidak mencukupi'
+            ], 400);
+        }
+
+        // Generate nomor referensi
+        $prefix = $request->jenis == 'masuk' ? 'IN' : 'OUT';
+        $dateStr = Carbon::parse($request->tanggal)->format('Ymd');
+        $count = Mutasi::whereDate('tanggal', $request->tanggal)->where('jenis', $request->jenis)->count() + 1;
+        $no_referensi = sprintf("%s-%s-%04d", $prefix, $dateStr, $count);
+
         try {
             DB::beginTransaction();
 
-            $barang = Barang::findOrFail($request->barang_id);
-
-            // Validasi stok jika keluar
             if ($request->jenis == 'keluar') {
-                if ($barang->stok < $request->jumlah) {
-                    return response()->json([
-                        'message' => 'Gagal menyimpan mutasi',
-                        'errors' => ['jumlah' => ['Stok barang tidak mencukupi untuk dikeluarkan.']]
-                    ], 422);
-                }
                 $barang->decrement('stok', $request->jumlah);
             } else {
                 $barang->increment('stok', $request->jumlah);
             }
 
-            // Generate No Referensi jika kosong
-            $noReferensi = $request->no_referensi;
-            if (!$noReferensi) {
-                $prefix = $request->jenis == 'masuk' ? 'IN' : 'OUT';
-                $dateCode = Carbon::parse($request->tanggal)->format('Ymd');
-                $randomNumber = str_pad(rand(1, 999), 3, '0', STR_PAD_LEFT);
-                $noReferensi = "{$prefix}/{$dateCode}/{$randomNumber}";
-            }
-
             $mutasi = Mutasi::create([
-                'no_referensi' => $noReferensi,
+                'no_referensi' => $no_referensi,
                 'barang_id' => $request->barang_id,
-                'user_id' => auth()->id() ?? 1, // Fallback jika tidak ada auth
+                'user_id' => Auth::id() ?? 1,
                 'jenis' => $request->jenis,
                 'jumlah' => $request->jumlah,
                 'tanggal' => $request->tanggal,
-                'tujuan' => $request->tujuan,
-                'keterangan' => $request->keterangan
+                'tujuan' => $request->jenis == 'keluar' ? $request->tujuan : null,
+                'supplier_id' => $request->jenis == 'masuk' ? $request->supplier_id : null,
+                'keterangan' => $request->keterangan,
             ]);
 
             DB::commit();

@@ -24,22 +24,20 @@ class BarangMutasiSeeder extends Seeder
         }
 
         $barangs = [
-            ['kode_barang' => 'BRG-01', 'nama_barang' => 'Kertas HVS', 'kategori' => 'ATK', 'stok_minimum' => 50, 'satuan' => 'Rim', 'harga_satuan' => 50000],
-            ['kode_barang' => 'BRG-02', 'nama_barang' => 'Tinta Printer Hitam', 'kategori' => 'Tinta', 'stok_minimum' => 10, 'satuan' => 'Botol', 'harga_satuan' => 75000],
-            ['kode_barang' => 'BRG-03', 'nama_barang' => 'Pulpen', 'kategori' => 'ATK', 'stok_minimum' => 100, 'satuan' => 'Pcs', 'harga_satuan' => 3500],
-            ['kode_barang' => 'BRG-04', 'nama_barang' => 'Spidol Papan Tulis', 'kategori' => 'ATK', 'stok_minimum' => 20, 'satuan' => 'Pcs', 'harga_satuan' => 8000],
-            ['kode_barang' => 'BRG-05', 'nama_barang' => 'Mouse Wireless', 'kategori' => 'Elektronik', 'stok_minimum' => 5, 'satuan' => 'Pcs', 'harga_satuan' => 150000],
+            ['kode_barang' => 'BRG-01', 'nama_barang' => 'Kertas HVS', 'kategori' => 'Alat Tulis Kantor', 'stok_minimum' => 50, 'satuan' => 'Rim', 'harga_satuan' => 50000],
+            ['kode_barang' => 'BRG-02', 'nama_barang' => 'Spidol Hitam', 'kategori' => 'Alat Tulis Kantor', 'stok_minimum' => 20, 'satuan' => 'Pcs', 'harga_satuan' => 10000],
         ];
 
         $createdBarangs = [];
-        foreach ($barangs as $brg) {
-            $createdBarangs[] = Barang::create($brg);
+        foreach ($barangs as $b) {
+            $createdBarangs[] = Barang::create(array_merge($b, ['stok' => 0])); // Initial stok is 0
         }
 
         // Generate mutations: Exactly 5 transactions as requested
         // Let's create 2 Masuk and 3 Keluar
         $today = Carbon::now();
         $tujuanList = ['HRD', 'IT', 'Finance', 'Operasional', 'Marketing'];
+        $suppliers = \App\Models\Supplier::pluck('id')->toArray();
 
         // Transaction 1: Masuk
         $barang1 = $createdBarangs[0];
@@ -47,6 +45,7 @@ class BarangMutasiSeeder extends Seeder
             'no_referensi' => 'IN/' . $today->copy()->subDays(5)->format('Ymd') . '/001',
             'barang_id' => $barang1->id,
             'user_id' => $admin->id,
+            'supplier_id' => $suppliers[0] ?? null,
             'jenis' => 'masuk',
             'jumlah' => 100,
             'tanggal' => $today->copy()->subDays(5)->format('Y-m-d'),
@@ -60,6 +59,7 @@ class BarangMutasiSeeder extends Seeder
             'no_referensi' => 'IN/' . $today->copy()->subDays(4)->format('Ymd') . '/002',
             'barang_id' => $barang2->id,
             'user_id' => $admin->id,
+            'supplier_id' => $suppliers[1] ?? ($suppliers[0] ?? null),
             'jenis' => 'masuk',
             'jumlah' => 150,
             'tanggal' => $today->copy()->subDays(4)->format('Y-m-d'),
@@ -99,11 +99,11 @@ class BarangMutasiSeeder extends Seeder
             'barang_id' => $barang1->id,
             'user_id' => $petugas->id,
             'jenis' => 'keluar',
-            'jumlah' => 20,
+            'jumlah' => 2,
             'tanggal' => $today->copy()->subDays(1)->format('Y-m-d'),
             'tujuan' => $tujuanList[2], // Finance
-            'keterangan' => 'Permintaan Divisi',
+            'keterangan' => 'Permintaan Tambahan',
         ]);
-        $barang1->decrement('stok', 20);
+        $barang1->decrement('stok', 2);
     }
 }

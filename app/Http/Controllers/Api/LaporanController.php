@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Barang;
 use App\Models\Mutasi;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class LaporanController extends Controller
@@ -143,6 +144,76 @@ class LaporanController extends Controller
                     'barang_keluar' => (int) $barangKeluar,
                     'total_nilai_pengeluaran' => $totalNilaiPengeluaran,
                     'periode' => $periode
+                ],
+                'laporan' => $laporan
+            ]
+        ], 200);
+    }
+
+    public function barangMasuk(Request $request)
+    {
+        $query = Mutasi::with(['barang:id,nama_barang,kode_barang,satuan,harga_satuan', 'supplier:id,nama_supplier'])
+                       ->where('jenis', 'masuk');
+
+        // Filter: Tanggal (start_date s/d end_date)
+        if ($request->has('start_date') && $request->start_date != '') {
+            $query->whereDate('tanggal', '>=', $request->start_date);
+        }
+        if ($request->has('end_date') && $request->end_date != '') {
+            $query->whereDate('tanggal', '<=', $request->end_date);
+        }
+
+        // Filter: Supplier
+        if ($request->has('supplier') && $request->supplier != '') {
+            $searchSupplier = $request->supplier;
+            $query->whereHas('supplier', function($q) use ($searchSupplier) {
+                $q->where('nama_supplier', 'like', "%{$searchSupplier}%");
+            });
+        }
+
+        // Filter: Barang
+        if ($request->has('barang') && $request->barang != '') {
+            $searchBarang = $request->barang;
+            $query->whereHas('barang', function($q) use ($searchBarang) {
+                $q->where('nama_barang', 'like', "%{$searchBarang}%")
+                  ->orWhere('kode_barang', 'like', "%{$searchBarang}%");
+            });
+        }
+
+        $mutasis = $query->orderBy('tanggal', 'desc')->orderBy('id', 'desc')->get();
+
+        $laporan = $mutasis->map(function($mutasi) {
+            $harga = $mutasi->barang->harga_satuan ?? 0;
+            $total = $harga * $mutasi->jumlah;
+
+            return [
+                'id' => $mutasi->id,
+                'tanggal_masuk' => Carbon::parse($mutasi->tanggal)->format('d/m/Y'),
+                'no_referensi' => $mutasi->no_referensi,
+                'supplier' => $mutasi->supplier->nama_supplier ?? '-',
+                'barang' => $mutasi->barang->nama_barang ?? '-',
+                'satuan' => $mutasi->barang->satuan ?? '-',
+                'jumlah' => $mutasi->jumlah,
+                'harga_satuan' => $harga,
+                'total' => $total,
+                'keterangan' => $mutasi->keterangan ?? '-'
+            ];
+        });
+
+        // Summary Keseluruhan (seperti di Laporan Stok / Dashboard)
+        $totalBarang = Barang::count();
+        $totalStok = Barang::sum('stok');
+        $barangMasuk = Mutasi::where('jenis', 'masuk')->sum('jumlah');
+        $barangKeluar = Mutasi::where('jenis', 'keluar')->sum('jumlah');
+
+        return response()->json([
+            'message' => 'Berhasil mengambil laporan barang masuk',
+            'data' => [
+                'summary' => [
+                    'total_barang' => $totalBarang,
+                    'total_stok' => (int) $totalStok,
+                    'barang_masuk' => (int) $barangMasuk,
+                    'barang_keluar' => (int) $barangKeluar
                 ],
                 'laporan' => $laporan
             ]

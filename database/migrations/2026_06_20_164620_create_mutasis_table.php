@@ -16,11 +16,13 @@ return new class extends Migration
             $table->string('no_referensi')->unique();
             $table->foreignId('barang_id')->constrained('barangs')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            // Menambahkan supplier_id, nullable karena barang keluar tidak butuh supplier
+            $table->unsignedBigInteger('supplier_id')->nullable();
             $table->enum('jenis', ['masuk', 'keluar']);
             $table->integer('jumlah');
             $table->date('tanggal');
             $table->string('tujuan')->nullable();
-            $table->string('keterangan')->nullable();
+            $table->text('keterangan')->nullable();
             $table->timestamps();
         });
     }

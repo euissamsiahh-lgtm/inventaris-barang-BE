@@ -25,6 +25,7 @@ Route::middleware('auth:api')->group(function () {
     Route::apiResource('users', UserController::class);
     Route::apiResource('suppliers', SupplierController::class);
     Route::get('/laporan/stok', [LaporanController::class, 'stok']);
+    Route::get('/laporan/barang-masuk', [LaporanController::class, 'barangMasuk']);
     Route::get('/laporan/barang-keluar', [LaporanController::class, 'barangKeluar']);
     Route::apiResource('mutasi', MutasiController::class);
     Route::get('/user', function (Request $request) {

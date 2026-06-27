@@ -3,7 +3,7 @@
 Dokumen ini berisi panduan untuk Frontend Developer dalam melakukan integrasi dengan Backend API Inventaris Barang.
 
 **Base URL (Ubah IP sesuai dengan IP Laptop Backend saat ini):**
-`http://192.168.88.74/inventaris-barang-BE/public/api`
+`http://192.168.1.71/inventaris-barang-BE/public/api`
 
 ---
 
@@ -251,7 +251,47 @@ Mengambil ringkasan beserta tabel laporan. Mendukung pencarian berdasar kategori
             }
         ]
     }
-### 4.2. Get Laporan Barang Keluar (GET)
+### 4.2. Get Laporan Barang Masuk (GET)
+Endpoint khusus untuk halaman Laporan Barang Masuk. Menampilkan transaksi yang hanya berjenis 'masuk'.
+
+- **URL:** `/laporan/barang-masuk`
+- **Method:** `GET`
+- **Query Params (Opsional):**
+  - `?start_date=YYYY-MM-DD`
+  - `?end_date=YYYY-MM-DD`
+  - `?supplier=P.T Sumber` (Pencarian nama supplier)
+  - `?barang=HVS` (Pencarian nama atau kode barang)
+
+**Response Sukses:**
+```json
+{
+    "message": "Berhasil mengambil laporan barang masuk",
+    "data": {
+        "summary": {
+            "total_barang": 2,
+            "total_stok": 233,
+            "barang_masuk": 250,
+            "barang_keluar": 17
+        },
+        "laporan": [
+            {
+                "id": 1,
+                "tanggal_masuk": "20/06/2026",
+                "no_referensi": "IN/20260620/001",
+                "supplier": "CV. Sukses Jaya",
+                "barang": "Kertas HVS",
+                "satuan": "Rim",
+                "jumlah": 100,
+                "harga_satuan": 50000,
+                "total": 5000000,
+                "keterangan": "Pembelian Awal"
+            }
+        ]
+    }
+}
+```
+
+### 4.3. Get Laporan Barang Keluar (GET)
 Endpoint khusus untuk halaman Laporan Barang Keluar. Menampilkan transaksi yang hanya berjenis 'keluar'.
 
 - **URL:** `/laporan/barang-keluar`
