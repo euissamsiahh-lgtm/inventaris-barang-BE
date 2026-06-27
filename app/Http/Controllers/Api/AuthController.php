@@ -36,12 +36,17 @@ class AuthController extends Controller
             ], 403);
         }
 
-        // Cek role jika dikirimkan oleh frontend (misal role berupa text)
-        if ($request->has('role') && strtolower($user->role->nama_role ?? '') !== strtolower($request->role)) {
-            auth()->guard('api')->logout(); // invalidate token if role mismatches
-            return response()->json([
-                'message' => 'Anda tidak memiliki akses sebagai ' . ucfirst($request->role)
-            ], 403);
+        // Cek role jika dikirimkan oleh frontend (dibikin lebih fleksibel, misal "petugas" cocok dengan "Petugas Gudang")
+        if ($request->has('role')) {
+            $userRole = strtolower($user->role->nama_role ?? '');
+            $requestedRole = strtolower($request->role);
+            
+            if (!str_contains($userRole, $requestedRole)) {
+                auth()->guard('api')->logout();
+                return response()->json([
+                    'message' => 'Anda tidak memiliki akses sebagai ' . ucfirst($request->role)
+                ], 403);
+            }
         }
 
         return $this->respondWithToken($token, $user);

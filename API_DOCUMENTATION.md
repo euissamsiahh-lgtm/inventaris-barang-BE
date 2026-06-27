@@ -145,7 +145,7 @@ Mengambil daftar barang. Anda bisa mengirim parameter untuk melakukan pencarian 
 - **Method:** `GET`
 - **Query Params (Opsional):**
   - `?search=kertas` (Pencarian teks kode/nama)
-  - `?kategori=ATK` (Filter Kategori)
+  - `?kategori=Alat Tulis Kantor` (Filter Kategori)
   - `?satuan=Rim` (Filter Satuan)
 
 **Response Sukses:**
@@ -157,7 +157,7 @@ Mengambil daftar barang. Anda bisa mengirim parameter untuk melakukan pencarian 
             "id": 1,
             "kode_barang": "BRG-01",
             "nama_barang": "Kertas HVS",
-            "kategori": "ATK",
+            "kategori": "Alat Tulis Kantor",
             "stok": 350,
             "stok_minimum": 50,
             "satuan": "Rim",
@@ -222,7 +222,7 @@ Mengambil ringkasan beserta tabel laporan. Mendukung pencarian berdasar kategori
 - **URL:** `/laporan/stok`
 - **Method:** `GET`
 - **Query Params (Opsional - Bisa dipakai untuk form Filter):**
-  - `?kategori=ATK` (Filter Kategori - Pencarian teks)
+  - `?kategori=Alat Tulis Kantor` (Filter Kategori - Pencarian teks)
   - `?nama_barang=Kertas` (Filter Nama Barang - Pencarian teks)
   - `?kode_barang=BRG` (Filter Kode Barang - Pencarian teks)
   - `?filter_stok=>10` (Untuk radio button Tampilkan Stok. Value yang didukung: `>10` atau `=0`)
@@ -244,7 +244,7 @@ Mengambil ringkasan beserta tabel laporan. Mendukung pencarian berdasar kategori
                 "id": 1,
                 "kode_barang": "BRG-01",
                 "nama_barang": "Kertas HVS",
-                "kategori": "ATK",
+                "kategori": "Alat Tulis Kantor",
                 "satuan": "Rim",
                 "stok_tersedia": 350,
                 "stok_minimum": 50,
