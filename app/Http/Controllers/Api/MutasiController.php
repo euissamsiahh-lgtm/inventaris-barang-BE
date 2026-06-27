@@ -15,7 +15,7 @@ class MutasiController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Mutasi::with(['barang:id,nama_barang,kode_barang,satuan', 'user:id,name']);
+        $query = Mutasi::with(['barang:id,nama_barang,kode_barang,satuan', 'user:id,name', 'supplier:id,nama_supplier']);
 
         // Filter: Tanggal (start_date s/d end_date)
         if ($request->has('start_date') && $request->start_date != '') {
@@ -49,13 +49,16 @@ class MutasiController extends Controller
         $formattedData = $mutasis->map(function($mutasi) {
             return [
                 'id' => $mutasi->id,
-                'tanggal' => Carbon::parse($mutasi->tanggal)->format('d/m/y'),
+                'tanggal' => Carbon::parse($mutasi->tanggal)->format('d/m/Y'),
                 'no_referensi' => $mutasi->no_referensi,
                 'nama_barang' => $mutasi->barang->nama_barang ?? '-',
+                'barang' => $mutasi->barang->nama_barang ?? '-',
                 'kode_barang' => $mutasi->barang->kode_barang ?? '-',
                 'jenis' => ucfirst($mutasi->jenis),
                 'jumlah' => $mutasi->jumlah,
                 'satuan' => $mutasi->barang->satuan ?? '-',
+                'tujuan' => $mutasi->tujuan ?? '-',
+                'supplier' => $mutasi->supplier->nama_supplier ?? '-',
                 'keterangan' => $mutasi->keterangan ?? '-',
                 'petugas' => $mutasi->user->name ?? '-'
             ];
@@ -170,11 +173,104 @@ class MutasiController extends Controller
 
     public function update(Request $request, string $id)
     {
-        return response()->json(['message' => 'Mutasi tidak dapat diubah setelah disimpan untuk alasan audit.'], 403);
+        $mutasi = Mutasi::find($id);
+        if (!$mutasi) {
+            return response()->json(['message' => 'Data tidak ditemukan'], 404);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'barang_id' => 'required|exists:barangs,id',
+            'jenis' => 'required|in:masuk,keluar',
+            'jumlah' => 'required|integer|min:1',
+            'tanggal' => 'required|date',
+            'keterangan' => 'nullable|string',
+            'tujuan' => 'nullable|string',
+            'supplier_id' => 'nullable|exists:suppliers,id'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => 'Validasi gagal', 'errors' => $validator->errors()], 422);
+        }
+
+        if ($request->jenis == 'keluar' && !$request->has('tujuan')) {
+             return response()->json(['message' => 'Validasi gagal', 'errors' => ['tujuan' => ['Kolom tujuan wajib diisi untuk barang keluar.']]], 422);
+        }
+        if ($request->jenis == 'masuk' && !$request->has('supplier_id')) {
+             return response()->json(['message' => 'Validasi gagal', 'errors' => ['supplier_id' => ['Kolom supplier wajib diisi untuk barang masuk.']]], 422);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $oldBarang = Barang::find($mutasi->barang_id);
+            // Revert old stock
+            if ($mutasi->jenis == 'keluar') {
+                $oldBarang->increment('stok', $mutasi->jumlah);
+            } else {
+                $oldBarang->decrement('stok', $mutasi->jumlah);
+            }
+
+            $newBarang = Barang::find($request->barang_id);
+            // Check if new stock goes negative
+            if ($request->jenis == 'keluar' && $newBarang->stok < $request->jumlah) {
+                DB::rollBack();
+                return response()->json(['message' => 'Stok barang tidak mencukupi'], 400);
+            }
+
+            // Apply new stock
+            if ($request->jenis == 'keluar') {
+                $newBarang->decrement('stok', $request->jumlah);
+            } else {
+                $newBarang->increment('stok', $request->jumlah);
+            }
+
+            $mutasi->update([
+                'barang_id' => $request->barang_id,
+                'jenis' => $request->jenis,
+                'jumlah' => $request->jumlah,
+                'tanggal' => $request->tanggal,
+                'tujuan' => $request->jenis == 'keluar' ? $request->tujuan : null,
+                'supplier_id' => $request->jenis == 'masuk' ? $request->supplier_id : null,
+                'keterangan' => $request->keterangan,
+            ]);
+
+            DB::commit();
+
+            return response()->json(['message' => 'Berhasil mengubah mutasi barang', 'data' => $mutasi], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Terjadi kesalahan sistem', 'error' => $e->getMessage()], 500);
+        }
     }
 
     public function destroy(string $id)
     {
-        return response()->json(['message' => 'Mutasi tidak dapat dihapus untuk alasan audit.'], 403);
+        $mutasi = Mutasi::find($id);
+        if (!$mutasi) {
+            return response()->json(['message' => 'Data tidak ditemukan'], 404);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $barang = Barang::find($mutasi->barang_id);
+            // Revert stock
+            if ($mutasi->jenis == 'keluar') {
+                $barang->increment('stok', $mutasi->jumlah);
+            } else {
+                $barang->decrement('stok', $mutasi->jumlah);
+            }
+
+            $mutasi->delete();
+
+            DB::commit();
+
+            return response()->json(['message' => 'Berhasil menghapus mutasi barang'], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Terjadi kesalahan sistem', 'error' => $e->getMessage()], 500);
+        }
     }
 }
