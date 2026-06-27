@@ -302,8 +302,8 @@ Endpoint khusus untuk halaman Laporan Barang Keluar. Menampilkan transaksi yang 
 - **Query Params (Opsional):**
   - `?start_date=2024-05-01`
   - `?end_date=2024-05-20`
-  - `?tujuan=HRD`
-  - `?barang=Kertas`
+  - `?satuan=Rim` (Filter Satuan)
+  - `?barang=Kertas` (Filter Nama/Kode Barang)
 
 **Response Sukses:**
 ```json
@@ -311,24 +311,24 @@ Endpoint khusus untuk halaman Laporan Barang Keluar. Menampilkan transaksi yang 
     "message": "Berhasil mengambil data laporan barang keluar",
     "data": {
         "summary": {
-            "total_transaksi": 3,
-            "barang_keluar": 900,
-            "total_nilai_pengeluaran": 8996000,
-            "periode": "01 Mei 2024 - 20 Mei 2024"
+            "total_barang": 2,
+            "total_stok": 233,
+            "barang_masuk": 250,
+            "barang_keluar": 17
         },
         "laporan": [
             {
                 "id": 1,
-                "tanggal": "22/09/24",
+                "tanggal_keluar": "22/09/2024",
                 "no_referensi": "OUT/00/88",
                 "tujuan": "HRD",
-                "nama_barang": "Kertas A4",
+                "barang": "Kertas A4",
                 "kode_barang": "BRG-00",
                 "satuan": "Rim",
                 "jumlah": 10,
                 "harga_satuan": 50000,
                 "total": 500000,
-                "petugas": "Petugas Gudang"
+                "keterangan": "Keperluan Cetak"
             }
         ]
     }

@@ -117,49 +117,48 @@ class LaporanController extends Controller
             });
         }
 
-        $mutasis = $query->orderBy('tanggal', 'desc')->get();
-
-        // Summary Calculations
-        $totalTransaksi = $mutasis->count();
-        $barangKeluar = $mutasis->sum('jumlah');
-        $totalNilaiPengeluaran = $mutasis->sum(function($mutasi) {
-            return $mutasi->jumlah * ($mutasi->barang->harga_satuan ?? 0);
-        });
-
-        // Determine Periode String
-        $periode = 'Semua Waktu';
-        if ($request->has('start_date') && $request->has('end_date')) {
-            $start = \Carbon\Carbon::parse($request->start_date)->translatedFormat('d F Y');
-            $end = \Carbon\Carbon::parse($request->end_date)->translatedFormat('d F Y');
-            $periode = "{$start} - {$end}";
+        // Filter: Satuan
+        if ($request->has('satuan') && $request->satuan != '') {
+            $searchSatuan = $request->satuan;
+            $query->whereHas('barang', function($q) use ($searchSatuan) {
+                $q->where('satuan', 'like', "%{$searchSatuan}%");
+            });
         }
+
+        $mutasis = $query->orderBy('tanggal', 'desc')->orderBy('id', 'desc')->get();
 
         // Map Table Data
         $laporan = $mutasis->map(function($mutasi) {
             $hargaSatuan = $mutasi->barang->harga_satuan ?? 0;
             return [
                 'id' => $mutasi->id,
-                'tanggal' => \Carbon\Carbon::parse($mutasi->tanggal)->format('d/m/y'),
+                'tanggal_keluar' => Carbon::parse($mutasi->tanggal)->format('d/m/Y'),
                 'no_referensi' => $mutasi->no_referensi,
                 'tujuan' => $mutasi->tujuan ?? '-',
-                'nama_barang' => $mutasi->barang->nama_barang ?? '-',
+                'barang' => $mutasi->barang->nama_barang ?? '-',
                 'kode_barang' => $mutasi->barang->kode_barang ?? '-',
                 'satuan' => $mutasi->barang->satuan ?? '-',
                 'jumlah' => $mutasi->jumlah,
                 'harga_satuan' => $hargaSatuan,
                 'total' => $mutasi->jumlah * $hargaSatuan,
-                'petugas' => $mutasi->user->name ?? '-'
+                'keterangan' => $mutasi->keterangan ?? '-'
             ];
         });
+
+        // Summary Keseluruhan (seperti di Laporan Stok / Dashboard)
+        $totalBarang = Barang::count();
+        $totalStok = Barang::sum('stok');
+        $totalBarangMasuk = Mutasi::where('jenis', 'masuk')->sum('jumlah');
+        $totalBarangKeluar = Mutasi::where('jenis', 'keluar')->sum('jumlah');
 
         return response()->json([
             'message' => 'Berhasil mengambil data laporan barang keluar',
             'data' => [
                 'summary' => [
-                    'total_transaksi' => $totalTransaksi,
-                    'barang_keluar' => (int) $barangKeluar,
-                    'total_nilai_pengeluaran' => $totalNilaiPengeluaran,
-                    'periode' => $periode
+                    'total_barang' => $totalBarang,
+                    'total_stok' => (int) $totalStok,
+                    'barang_masuk' => (int) $totalBarangMasuk,
+                    'barang_keluar' => (int) $totalBarangKeluar
                 ],
                 'laporan' => $laporan
             ]
