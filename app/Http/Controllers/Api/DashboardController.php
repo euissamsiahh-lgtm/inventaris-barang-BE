@@ -38,13 +38,13 @@ class DashboardController extends Controller
 
         // 3. Stok Menipis Table
         $stokMenipis = Barang::whereColumn('stok', '<=', 'stok_minimum')
-            ->select('id', 'nama_barang', 'stok', 'stok_minimum', 'satuan')
+            ->select('id', 'kode_barang', 'nama_barang', 'stok', 'stok_minimum', 'satuan')
             ->orderBy('stok', 'asc')
             ->take(10)
             ->get();
 
         // 4. Aktivitas Terbaru Table
-        $aktivitasTerbaru = Mutasi::with(['barang:id,nama_barang', 'user:id,name'])
+        $aktivitasTerbaru = Mutasi::with(['barang:id,kode_barang,nama_barang', 'user:id,name'])
             ->orderBy('created_at', 'desc')
             ->take(5)
             ->get()
@@ -53,6 +53,7 @@ class DashboardController extends Controller
                     'id' => $mutasi->id,
                     'tanggal' => Carbon::parse($mutasi->tanggal)->format('d/m/y'),
                     'jenis' => ucfirst($mutasi->jenis),
+                    'kode_barang' => $mutasi->barang->kode_barang ?? '-',
                     'nama_barang' => $mutasi->barang->nama_barang ?? 'Unknown',
                     'jumlah' => $mutasi->jumlah,
                     'oleh' => $mutasi->user->name ?? 'Unknown'
