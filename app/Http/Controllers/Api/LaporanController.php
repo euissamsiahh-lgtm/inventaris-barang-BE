@@ -16,7 +16,23 @@ class LaporanController extends Controller
 
         // 1. Terapkan Filter
         if ($request->has('kategori') && $request->kategori != '') {
-            $query->where('kategori', $request->kategori);
+            $query->where('kategori', 'like', '%' . $request->kategori . '%');
+        }
+
+        if ($request->has('nama_barang') && $request->nama_barang != '') {
+            $query->where('nama_barang', 'like', '%' . $request->nama_barang . '%');
+        }
+
+        if ($request->has('kode_barang') && $request->kode_barang != '') {
+            $query->where('kode_barang', 'like', '%' . $request->kode_barang . '%');
+        }
+
+        if ($request->has('filter_stok') && $request->filter_stok != '') {
+            if ($request->filter_stok == '>10') {
+                $query->where('stok', '>', 10);
+            } elseif ($request->filter_stok == '=0') {
+                $query->where('stok', 0);
+            }
         }
 
         if ($request->has('barang_id') && $request->barang_id != '') {

@@ -221,9 +221,12 @@ Mengambil ringkasan beserta tabel laporan. Mendukung pencarian berdasar kategori
 
 - **URL:** `/laporan/stok`
 - **Method:** `GET`
-- **Query Params (Opsional):**
-  - `?kategori=ATK` (Filter Kategori)
-  - `?barang_id=1` (Filter Barang Spesifik)
+- **Query Params (Opsional - Bisa dipakai untuk form Filter):**
+  - `?kategori=ATK` (Filter Kategori - Pencarian teks)
+  - `?nama_barang=Kertas` (Filter Nama Barang - Pencarian teks)
+  - `?kode_barang=BRG` (Filter Kode Barang - Pencarian teks)
+  - `?filter_stok=>10` (Untuk radio button Tampilkan Stok. Value yang didukung: `>10` atau `=0`)
+  - `?barang_id=1` (Filter Barang Spesifik via ID)
 
 **Response Sukses:**
 ```json
