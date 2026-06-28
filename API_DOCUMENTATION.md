@@ -222,6 +222,7 @@ Mengambil ringkasan beserta tabel laporan. Mendukung pencarian berdasar kategori
 - **URL:** `/laporan/stok`
 - **Method:** `GET`
 - **Query Params (Opsional - Bisa dipakai untuk form Filter):**
+  - `?search=Kertas` (Pencarian global untuk nama barang, kode, dan kategori)
   - `?kategori=Alat Tulis Kantor` (Filter Kategori - Pencarian teks)
   - `?nama_barang=Kertas` (Filter Nama Barang - Pencarian teks)
   - `?kode_barang=BRG` (Filter Kode Barang - Pencarian teks)
@@ -300,6 +301,7 @@ Endpoint khusus untuk halaman Laporan Barang Keluar. Menampilkan transaksi yang 
 - **URL:** `/laporan/barang-keluar`
 - **Method:** `GET`
 - **Query Params (Opsional):**
+  - `?search=Kertas` (Pencarian global untuk nama barang, kode, dan supplier)
   - `?start_date=2024-05-01`
   - `?end_date=2024-05-20`
   - `?satuan=Rim` (Filter Satuan)

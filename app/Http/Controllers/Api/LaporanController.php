@@ -15,6 +15,15 @@ class LaporanController extends Controller
         $query = Barang::query();
 
         // 1. Terapkan Filter
+        if ($request->has('search') && $request->search != '') {
+            $searchTerm = $request->search;
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('nama_barang', 'like', "%{$searchTerm}%")
+                  ->orWhere('kode_barang', 'like', "%{$searchTerm}%")
+                  ->orWhere('kategori', 'like', "%{$searchTerm}%");
+            });
+        }
+
         if ($request->has('kategori') && $request->kategori != '') {
             $query->where('kategori', 'like', '%' . $request->kategori . '%');
         }
@@ -117,6 +126,17 @@ class LaporanController extends Controller
             });
         }
 
+        // Global Search
+        if ($request->has('search') && $request->search != '') {
+            $searchTerm = $request->search;
+            $query->where(function($q) use ($searchTerm) {
+                $q->whereHas('barang', function($q2) use ($searchTerm) {
+                    $q2->where('nama_barang', 'like', "%{$searchTerm}%")
+                       ->orWhere('kode_barang', 'like', "%{$searchTerm}%");
+                })->orWhere('tujuan', 'like', "%{$searchTerm}%");
+            });
+        }
+
         // Filter: Satuan
         if ($request->has('satuan') && $request->satuan != '') {
             $searchSatuan = $request->satuan;
@@ -192,6 +212,19 @@ class LaporanController extends Controller
             $query->whereHas('barang', function($q) use ($searchBarang) {
                 $q->where('nama_barang', 'like', "%{$searchBarang}%")
                   ->orWhere('kode_barang', 'like', "%{$searchBarang}%");
+            });
+        }
+
+        // Global Search
+        if ($request->has('search') && $request->search != '') {
+            $searchTerm = $request->search;
+            $query->where(function($q) use ($searchTerm) {
+                $q->whereHas('barang', function($q2) use ($searchTerm) {
+                    $q2->where('nama_barang', 'like', "%{$searchTerm}%")
+                       ->orWhere('kode_barang', 'like', "%{$searchTerm}%");
+                })->orWhereHas('supplier', function($q2) use ($searchTerm) {
+                    $q2->where('nama_supplier', 'like', "%{$searchTerm}%");
+                });
             });
         }
 
